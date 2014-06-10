@@ -42,7 +42,7 @@ namespace GiftAidCalculator.Tests
 
         [Test]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void more_than_hundret_tax_rate_should_throw_exception()
+        public void more_than_hundred_tax_rate_should_throw_exception()
         {
             const decimal donationAmount = 1000m;
             const decimal taxRate = 120m;
