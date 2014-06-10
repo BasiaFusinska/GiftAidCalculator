@@ -15,9 +15,9 @@
             _supplementConfiguration = supplementConfiguration;
         }
 
-        public DonationInfo Donate(decimal donationAmount, EventType eventType)
+        public DonationInfo Donate(decimal donationAmount, EventActivity eventActivity)
         {
-            var donation = _supplementConfiguration.CalculateSupplementedAmount(donationAmount, eventType);
+            var donation = _supplementConfiguration.CalculateSupplementedAmount(donationAmount, eventActivity.EventType);
             var giftAid = _calculator.CalculateGiftAidAmount(donation, _taxRateStore.RetrieveTaxRate());
             var giftAidRounded = decimal.Round(giftAid, 2);
 

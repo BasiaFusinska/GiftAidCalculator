@@ -17,7 +17,7 @@ namespace GiftAidCalculator
 
         public decimal CalculateSupplementedAmount(decimal donationAmount, EventType eventType)
         {
-            return donationAmount * _eventType2SupplementRate[eventType] / 100;
+            return donationAmount + donationAmount * _eventType2SupplementRate[eventType] / 100m;
         }
     }
 }

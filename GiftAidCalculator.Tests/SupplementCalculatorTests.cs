@@ -20,7 +20,7 @@ namespace GiftAidCalculator.Tests
             var supplementedAmount = calculator.CalculateSupplementedAmount(donationAmount, eventType);
 
             var supplementionRate = eventType == EventType.Running ? 5m : eventType == EventType.Swimming ? 3m : 0m;
-            Assert.AreEqual(donationAmount * supplementionRate / 100, supplementedAmount);
+            Assert.AreEqual(donationAmount + donationAmount * supplementionRate / 100, supplementedAmount);
         }
     }
 }

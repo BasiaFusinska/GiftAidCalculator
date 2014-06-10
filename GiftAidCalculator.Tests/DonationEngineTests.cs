@@ -6,55 +6,53 @@ namespace GiftAidCalculator.Tests
     [TestFixture]
     public class DonationEngineTests
     {
+        const decimal DonationAmount = 2500m;
+        const decimal SupplementedAmount = 2789m;
+        const decimal TaxRate = 25m;
+        const decimal GiftAid = 345.678m;
+
+        private readonly Mock<ITaxRateStorage> _storageMock = new Mock<ITaxRateStorage>();
+        private readonly Mock<IGiftAidCalculator> _calculatorMock = new Mock<IGiftAidCalculator>();
+        private readonly Mock<ISupplementCalculator> _configurationMock = new Mock<ISupplementCalculator>();
+
+        [SetUp]
+        public void SetUp()
+        {
+
+            _storageMock
+                .Setup(x => x.RetrieveTaxRate())
+                .Returns(TaxRate);
+
+            _calculatorMock
+                .Setup(x => x.CalculateGiftAidAmount(It.IsAny<decimal>(), It.IsAny<decimal>()))
+                .Returns(GiftAid);
+
+            _configurationMock
+                .Setup(x => x.CalculateSupplementedAmount(It.IsAny<decimal>(), It.IsAny<EventType>()))
+                .Returns(SupplementedAmount);
+            
+        }
+
         [Test]
         public void calculating_donation_info_should_use_proper_providers()
         {
-            var storageMock = new Mock<ITaxRateStorage>();
-            storageMock.Setup(x => x.RetrieveTaxRate());
+            var donationEngine = new DonationEngine(_storageMock.Object, _calculatorMock.Object, _configurationMock.Object);
+            donationEngine.Donate(DonationAmount, new EventActivity { EventType = EventType.Other });
 
-            var calculatorMock = new Mock<IGiftAidCalculator>();
-            calculatorMock.Setup(x => x.CalculateGiftAidAmount(It.IsAny<decimal>(), It.IsAny<decimal>()));
-
-            var configurationMock = new Mock<ISupplementCalculator>();
-            configurationMock.Setup(x => x.CalculateSupplementedAmount(It.IsAny<decimal>(), It.IsAny<EventType>()));
-
-            var donationEngine = new DonationEngine(storageMock.Object, calculatorMock.Object, configurationMock.Object);
-            donationEngine.Donate(1000m, EventType.Other);
-
-            storageMock.Verify(x => x.RetrieveTaxRate());
-            calculatorMock.Verify(x => x.CalculateGiftAidAmount(It.IsAny<decimal>(), It.IsAny<decimal>()));
-            configurationMock.Verify(x => x.CalculateSupplementedAmount(It.IsAny<decimal>(), It.IsAny<EventType>()));
+            _storageMock.Verify(x => x.RetrieveTaxRate());
+            _calculatorMock.Verify(x => x.CalculateGiftAidAmount(It.IsAny<decimal>(), It.IsAny<decimal>()));
+            _configurationMock.Verify(x => x.CalculateSupplementedAmount(It.IsAny<decimal>(), It.IsAny<EventType>()));
         }
 
         [Test]
         public void calculating_donation_info_should_return_proper_values()
         {
-            const decimal donationAmount = 2500m;
-            const decimal supplementedAmount = 2789m;
-            const decimal taxRate = 25m;
-            const decimal giftAid = 345.678m;
+            var donationEngine = new DonationEngine(_storageMock.Object, _calculatorMock.Object, _configurationMock.Object);
+            var donationInfo = donationEngine.Donate(DonationAmount, new EventActivity { EventType = EventType.Other});
 
-            var storageMock = new Mock<ITaxRateStorage>();
-            storageMock
-                .Setup(x => x.RetrieveTaxRate())
-                .Returns(taxRate);
-
-            var calculatorMock = new Mock<IGiftAidCalculator>();
-            calculatorMock
-                .Setup(x => x.CalculateGiftAidAmount(It.IsAny<decimal>(), It.IsAny<decimal>()))
-                .Returns(giftAid);
-
-            var configurationMock = new Mock<ISupplementCalculator>();
-            configurationMock
-                .Setup(x => x.CalculateSupplementedAmount(It.IsAny<decimal>(), It.IsAny<EventType>()))
-                .Returns(supplementedAmount);
-
-            var donationEngine = new DonationEngine(storageMock.Object, calculatorMock.Object, configurationMock.Object);
-            var donationInfo = donationEngine.Donate(donationAmount, EventType.Other);
-
-            Assert.AreEqual(donationAmount, donationInfo.OriginalDonation);
-            Assert.AreEqual(supplementedAmount, donationInfo.SupplementedDonation);
-            Assert.AreEqual(giftAid, donationInfo.GiftAid);
+            Assert.AreEqual(DonationAmount, donationInfo.OriginalDonation);
+            Assert.AreEqual(SupplementedAmount, donationInfo.SupplementedDonation);
+            Assert.AreEqual(GiftAid, donationInfo.GiftAid);
             Assert.AreEqual(345.68m, donationInfo.GiftAidRounded);
         }
     }

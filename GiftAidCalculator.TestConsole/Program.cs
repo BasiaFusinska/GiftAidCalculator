@@ -22,7 +22,7 @@ namespace GiftAidCalculator.TestConsole
                 new GiftAidCalculator(),
 		        new SupplementCalculator());
 
-		    var info = donationEngine.Donate(donationAmount, EventType.Other);
+		    var info = donationEngine.Donate(donationAmount, new EventActivity { EventType = EventType.Other });
 
 		    return info.GiftAidRounded;
 		}
